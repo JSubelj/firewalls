@@ -123,12 +123,17 @@ iptables -A OUTPUT -o lo -j ACCEPT
 iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 
 # (2) TODO: Allow all outgoing packets that belong to ESTABLISHED or RELATED connections.
+
 iptables -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+
+
 
 # (3) Allow outgoing DNS requests to the DNS server in variable NAMESERVER
 iptables -A OUTPUT -p udp -d $NAMESERVER --dport 53 -m state --state NEW -j ACCEPT
 
 # (4) TODO: Allow outgoing SSH connections to remote SSH servers
+
 #iptables -A OUTPUT -p tcp --dport 22 -m state --state NEW -j ACCEPT
 
 # (5) TODO: Allow incomming connections to local SSH server
@@ -151,17 +156,21 @@ iptables -A OUTPUT -p icmp --icmp-type 8 -m state --state NEW -j ACCEPT
 
 # (11) TODO: Allow incoming ping requests
 iptables -A INPUT -p icmp --icmp-type 8 -m state --state  NEW -j ACCEPT
-
 # (12) TODO: Compress rules 4-9 into two iptables commands using
 # "-m multiport" and "--ports" switches.
 # Make sure to comment rules 4-9 before testing.
+
 iptables -A OUTPUT -p tcp -m multiport --dports 22,80,443 -m state --state NEW -j ACCEPT
 iptables -A INPUT -p tcp -m multiport --dports 22,80,443 -m state --state NEW -j ACCEPT
+
+
+
 
 ### FORWARDING RULES
 
 # Do NAT for internet-bound traffic
 iptables -t nat -A POSTROUTING -o $INET_IFACE -j MASQUERADE
+
 
 FB_IP=185.60.216.35
 FB_IPS=31.13.90.36
@@ -181,7 +190,6 @@ iptables -A FORWARD -d $FB_IPS -j DROP
 
 # (13) TODO: Allow routing of packets that belong to ESTABLISHED or RELATED connections.
 iptables -A FORWARD -m state --state ESTABLISHED,RELATED -j ACCEPT
-
 # (14) Forward pings
 iptables -A FORWARD -p icmp --icmp-type echo-request -m state --state NEW  -j ACCEPT
 
@@ -189,10 +197,13 @@ iptables -A FORWARD -p icmp --icmp-type echo-request -m state --state NEW  -j AC
 iptables -A FORWARD -o $INET_IFACE -p udp -m multiport --ports 53 -m state --state NEW -j ACCEPT
 
 # (16) TODO: Forward HTTP, HTTPS and SSH traffic from client_subnet to Internet and to server_subnet
+
 iptables -A FORWARD -p tcp --dport 22 -s "172.16.0.2" -d "10.0.0.2" -m state --state NEW -j ACCEPT
 iptables -A FORWARD -p tcp --dport 22 -s "10.0.0.2" -d "172.16.0.2" -m state --state NEW -j ACCEPT
 
 iptables -A FORWARD -p tcp -m multiport --dports 22,80,443 -m state --state NEW -j ACCEPT
+
+
 
 
 

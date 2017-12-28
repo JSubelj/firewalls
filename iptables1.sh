@@ -33,6 +33,7 @@ DESC="netfilter/iptables firewall on $HOSTNAME"
 INET_IFACE="enp0s3"                      # Internet-connected interface
 IPADDR=`ifconfig $INET_IFACE | grep "inet addr:" | cut -d ":" -f2 | cut -d " " -f1`
 
+
 MY_ISP="0.0.0.0/0"                   # ISP server & NOC address range
 # Your subnet's network address
 SUBNET_BASE=`ifconfig $INET_IFACE | grep "inet addr:" | cut -d ":" -f4 | cut -d " " -f1`
@@ -141,27 +142,33 @@ iptables -A OUTPUT -p tcp --sport 22 -j ACCEPT
 ################
 ### HTTP settings
 ### (4) TODO: Allow outgoing HTTP connections
-
+iptables -A OUTPUT -p tcp --dport 80 -j ACCEPT
+iptables -A INPUT -p tcp --sport 80 -j ACCEPT
 
 ### (5) TODO: Allow incoming HTTP connections
-
+iptables -A INPUT -p tcp --dport 80 -j ACCEPT
+iptables -A OUTPUT -p tcp --sport 80 -j ACCEPT
 
 ################
 ### HTTPS settings
 ### (6) TODO: Allow outgoing HTTPS connections
-
+iptables -A OUTPUT -p tcp --dport 443 -j ACCEPT
+iptables -A INPUT -p tcp --sport 443 -j ACCEPT 
 
 ### (7) TODO: Allow incoming HTTPS connections
-
+iptables -A INPUT -p tcp --dport 443 -j ACCEPT
+iptables -A OUTPUT -p tcp --sport 443 -j ACCEPT
 
 #################
 ### ICMP settings
 ### (8) TODO: Allow outgoing ping requests (and corresponding ping replies)
 ### Hint: use protocol icmp and set the type of the message to either request
 ### or reply.
-
-
+iptables -A OUTPUT -p icmp --icmp-type 8 -j ACCEPT  # --icmp-type 8 je ping request
+iptables -A INPUT -p icmp --icmp-type 0 -j ACCEPT # --icmp-type 0 je reply request
 ### (9) TODO: Allow incoming pings from trusted hosts given in variable $MY_ISP
+iptables -A INPUT -s "10.0.2.0/24" -p icmp --icmp-type 8 -j ACCEPT
+iptables -A OUTPUT -d "10.0.2.0/24" -p icmp --icmp-type 0 -j ACCEPT
 
 }
 
